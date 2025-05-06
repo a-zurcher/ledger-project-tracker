@@ -16,7 +16,7 @@ class TimerView(Screen):
     timer: Timer
 
     project_name: Static
-    timer_display: Static
+    timer_display: Static # TODO implement figlet, see example: https://github.com/TomJGooding/figtext
     select_project_button: Button
     toggle_timer_button: Button
     stop_button: Button
