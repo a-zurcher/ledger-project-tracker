@@ -1,9 +1,12 @@
+import os
 import re
 import subprocess
 from datetime import datetime
 
 DATE_FORMAT = '%Y-%m-%d'
 projects_root_account = "Projets"
+ledger_time_file = os.getenv("LEDGER_TIME_FILE")
+time_account = "Temps"
 
 class InvalidProjectEntry(Exception):
     pass
@@ -36,8 +39,8 @@ class ProjectEntry:
         date_str = self.date.strftime(DATE_FORMAT)
         return (
             f"{today} {self.description}\n"
-            f"    Projets:{self.client}:{date_str} {self.name}\t\t{self.duration}\n"
-            f"    Temps\n"
+            f"    {projects_root_account}:{self.client}:{date_str} {self.name}\t\t{self.duration}\n"
+            f"    {time_account}\n"
         )
 
 
@@ -52,9 +55,9 @@ def parse_project(query: str) -> ProjectEntry:
 
 def get_projects() -> list[ProjectEntry]:
     result = subprocess.run(
-        args=f"ledger accounts {projects_root_account} --uncleared",
+        args=f"ledger -f {ledger_time_file} accounts {projects_root_account} --uncleared",
         shell=True, capture_output=True, text=True
     )
+
     lines = filter(None, result.stdout.splitlines())
-    projects = [parse_project(line.replace("Projets:", "")) for line in lines]
-    return sorted(projects, key=lambda p: p.date, reverse=True)
+    return [parse_project(line.replace(f"{projects_root_account}:", "")) for line in lines]

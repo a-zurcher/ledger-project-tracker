@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from textual.containers import Vertical, Horizontal
+from textual.containers import Vertical, Horizontal, Container
 from textual.screen import Screen
 from textual.validation import Validator, ValidationResult
 from textual.widgets import Input, Button, Label
@@ -34,7 +34,7 @@ class CreateProjectView(Screen):
     BINDINGS = [("submit", "start_timer_with_new_project", "Create a new project")]
 
     CSS = """
-        #form { margin-bottom: 1; }
+        #form { margin-bottom: 1; max-width: 100%; }
         Label { height: auto; }
         Input { width: 52; }
         #submit_btn { margin-right: 1; }
@@ -64,22 +64,23 @@ class CreateProjectView(Screen):
 
 
     def compose(self):
-        with Vertical(id="form", classes="auto-size"):
-            with Vertical(classes="form-group"):
-                yield Label("Date (YYYY-MM-DD format):")
-                yield self.date_input
+        with Container(classes="app-container auto-size"):
+            with Vertical(id="form", classes="auto-size"):
+                with Vertical(classes="form-group"):
+                    yield Label("Date (YYYY-MM-DD format):")
+                    yield self.date_input
 
-            with Vertical(classes="form-group"):
-                yield Label("Client:")
-                yield self.client_input
+                with Vertical(classes="form-group"):
+                    yield Label("Client:")
+                    yield self.client_input
 
-            with Vertical(classes="form-group"):
-                yield Label("Project name:")
-                yield self.project_name_input
+                with Vertical(classes="form-group"):
+                    yield Label("Project name:")
+                    yield self.project_name_input
 
-        with Horizontal(id="buttons", classes="auto-size"):
-            yield self.submit_button
-            yield self.cancel_button
+            with Horizontal(id="buttons", classes="auto-size"):
+                yield self.submit_button
+                yield self.cancel_button
 
     def action_start_timer_with_new_project(self):
         all_inputs_valid = True

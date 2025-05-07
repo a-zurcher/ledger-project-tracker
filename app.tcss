@@ -1,14 +1,20 @@
 Screen { align: center middle; }
 
+.app-container { max-width: 100%; margin: 1!important; }
 .auto-size { width: auto; height: auto; }
 
 
 /* input styling */
-.form-group { align: center middle; width: auto; height: auto;}
+.form-group {
+    align: center middle;
+    width: auto; height: auto;
+    max-width: 100%!important;
+}
 
 Input {
     background: $secondary 0%;
     border: round $primary;
+    max-width: 100%!important;
 }
 
 Input.-valid { border: round $primary; }

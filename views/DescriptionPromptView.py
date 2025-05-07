@@ -5,7 +5,8 @@ from textual.containers import Container
 from textual.screen import Screen
 from textual.widgets import Input, Static, Button
 
-from models import ProjectEntry
+from models import ProjectEntry, ledger_time_file
+
 
 class DescriptionPromptView(Screen):
     BINDINGS = [("submit", "save_project", "Save to ledger file")]
@@ -13,8 +14,6 @@ class DescriptionPromptView(Screen):
     CSS = """
         Input { width: 52; }
     """
-
-    ledger_time_file = os.getenv("LEDGER_TIME_FILE")
 
     input: Input
     save_button: Button
@@ -32,7 +31,7 @@ class DescriptionPromptView(Screen):
 
 
     def compose(self) -> ComposeResult:
-        with Container(classes="auto-size"):
+        with Container(classes="auto-size app-container"):
             yield Static("Enter a description for this task:")
             yield self.input
             yield self.save_button
@@ -43,8 +42,8 @@ class DescriptionPromptView(Screen):
     def action_save_project(self):
         self.project.set_description(self.input.value)
 
-        if not self.ledger_time_file:
+        if not ledger_time_file:
             self.app.exit("LEDGER_TIME_FILE not set")
-        with open(self.ledger_time_file, "a") as f:
+        with open(ledger_time_file, "a") as f:
             f.write("\n" + self.project.to_ledger())
         self.app.exit()

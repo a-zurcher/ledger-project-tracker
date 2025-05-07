@@ -1,9 +1,9 @@
 from rich.text import Text
 from textual.app import ComposeResult
-from textual.widgets import DataTable, Header, Footer, Button, Label
+from textual.widgets import DataTable, Button, Label
 from textual.containers import Vertical
 from textual.screen import Screen
-from textual.widgets._data_table import RowKey
+from textual.widgets._data_table import RowKey, ColumnKey
 
 from models import get_projects, ProjectEntry
 from views.CreateProjectView import CreateProjectView
@@ -14,7 +14,10 @@ class ProjectSelectorView(Screen):
         Vertical { max-width: 100; }
         #title { margin-bottom: 1; }
         DataTable { margin-bottom: 1; }
+        
     """
+
+    columns: list[ColumnKey]
 
     table: DataTable
     projects_rows: dict[RowKey, ProjectEntry] = {}
@@ -25,11 +28,11 @@ class ProjectSelectorView(Screen):
 
         table = DataTable(zebra_stripes=True)
         table.cursor_type = "row"
-        table.add_columns("Date", "Project", "Client")
+        self.columns = table.add_columns("Date", "Client", "Project")
         self.table = table
 
     def compose(self) -> ComposeResult:
-        with Vertical(classes="auto-size"):
+        with Vertical(classes="auto-size app-container"):
             yield Label(Text("Project tracking", style="bold"), id="title")
             yield self.table
             yield self.create_new_project_button
@@ -38,9 +41,11 @@ class ProjectSelectorView(Screen):
         projects = get_projects()
 
         for p in projects:
-            row_key = self.table.add_row(p.date.strftime("%Y-%m-%d"), p.name, p.client)
+            row_key = self.table.add_row(p.date.strftime("%Y-%m-%d"), p.client, p.name)
             self.projects_rows[row_key] = p
 
+        # sort by date, then company, then project name
+        self.table.sort(*self.columns)
         self.table.focus()
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected):

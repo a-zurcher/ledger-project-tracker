@@ -62,7 +62,7 @@ class TimerView(Screen):
         self.select_project_button = Button("Select another project", id="select_project_btn")
 
     def compose(self) -> ComposeResult:
-        with Container(classes="auto-size"):
+        with Container(classes="auto-size app-container"):
             yield Label(Text(self.project.name, style="bold"), id="project_name")
 
             with Horizontal(id="timer_controls", classes="auto-size"):
