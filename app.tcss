@@ -1,0 +1,15 @@
+Screen { align: center middle; }
+
+.auto-size { width: auto; height: auto; }
+
+
+/* input styling */
+.form-group { align: center middle; width: auto; height: auto;}
+
+Input {
+    background: $secondary 0%;
+    border: round $primary;
+}
+
+Input.-valid { border: round $primary; }
+Input.-invalid { border: round $error; }

@@ -46,6 +46,7 @@ def parse_project(query: str) -> ProjectEntry:
     if len(matches) != 1:
         raise InvalidProjectEntry(f"Invalid project entry: {query}")
     client, date_str, project = matches[0]
+
     return ProjectEntry(client, project, datetime.strptime(date_str, DATE_FORMAT))
 
 
