@@ -1,9 +1,13 @@
+import subprocess
+
+from rich.text import Text
 from textual.screen import Screen
 from textual.widgets import Static, Button, Input
 from textual.reactive import reactive
 from textual.timer import Timer
 from textual.containers import Vertical, Center, Horizontal
 from textual.app import ComposeResult
+
 from models import ProjectEntry
 import os
 
@@ -16,7 +20,7 @@ class TimerView(Screen):
     timer: Timer
 
     project_name: Static
-    timer_display: Static # TODO implement figlet, see example: https://github.com/TomJGooding/figtext
+    timer_display: Static
     select_project_button: Button
     toggle_timer_button: Button
     stop_button: Button
@@ -30,10 +34,15 @@ class TimerView(Screen):
 
         # widgets
         self.project_name = Static(self.project.name)
-        self.timer_display = Static("00:00")
+
+        self.timer_display = Static()
+        self.timer_display_update("00:00")
+
         self.toggle_timer_button = Button(id="toggle_btn", variant="primary")
         self.toggle_timer_set_text()
+
         self.stop_button = Button("⏹ Stop tracking", id="stop_btn", variant="error")
+
         self.select_project_button = Button("Select another project", id="select_project_btn")
 
     def compose(self) -> ComposeResult:
@@ -47,7 +56,7 @@ class TimerView(Screen):
                     self.stop_button
                 ),
 
-                self.select_project_button
+                #self.select_project_button
             )
         )
 
@@ -58,7 +67,8 @@ class TimerView(Screen):
         if self.running:
             self.elapsed += 1
             m, s = divmod(self.elapsed, 60)
-            self.timer_display.update(f"[bold green]{m:02}:{s:02}[/bold green]")
+            self.timer_display_update(f"{m:02d}:{s:02d}")
+
 
     def toggle_timer_set_text(self, **kwargs):
         self.toggle_timer_button.label = "▶ Resume" if not self.running else "⏸ Pause"
@@ -76,6 +86,17 @@ class TimerView(Screen):
     def ask_description(self):
         self.project.set_duration(f"{self.elapsed / 60:.2f}h")
         self.app.push_screen(DescriptionPromptView(self.project))
+
+    def timer_display_update(self, text: str):
+        figlet_output = subprocess.run(
+            args=f'echo "" && figlet -w "$(tput cols)" -f "files/DOS_Rebel.flf" {text}',
+            shell=True,
+            capture_output=True,
+        ).stdout.decode('utf-8')
+
+        visual = Text(figlet_output)
+
+        self.timer_display.update(visual)
 
 
 class DescriptionPromptView(Screen):
