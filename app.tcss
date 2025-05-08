@@ -1,6 +1,6 @@
 Screen { align: center middle; }
 
-.app-container { max-width: 100%; margin: 1!important; }
+.app-container { max-width: 100; margin: 1!important; }
 .auto-size { width: auto; height: auto; }
 
 
