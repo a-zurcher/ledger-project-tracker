@@ -34,10 +34,13 @@ class CreateProjectView(Screen):
     BINDINGS = [("submit", "start_timer_with_new_project", "Create a new project")]
 
     CSS = """
-        #form { margin-bottom: 1; max-width: 100%; }
-        Label { height: auto; }
-        Input { width: 52; }
-        #submit_btn { margin-right: 1; }
+        #form { 
+            margin-bottom: 1; max-width: 100%;
+            
+            Label { height: auto; }
+            Input { width: 52; }
+            #submit_btn { margin-right: 1; }
+        }
     """
 
     date_input: Input
@@ -59,7 +62,6 @@ class CreateProjectView(Screen):
         self.project_name_input.action_submit = self.action_start_timer_with_new_project
 
         self.submit_button = Button("Start timer", id="submit_btn", variant="primary")
-
         self.cancel_button = Button("Cancel", id="cancel_btn", variant="error")
 
 
@@ -93,7 +95,7 @@ class CreateProjectView(Screen):
 
         project = ProjectEntry(
             client=self.client_input.value,
-            project=self.project_name_input.value,
+            name=self.project_name_input.value,
             date=datetime.strptime(self.date_input.value, "%Y-%m-%d").date(),
         )
 

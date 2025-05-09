@@ -4,9 +4,11 @@ Track your projects in the terminal using [ledger-cli](https://ledger-cli.org/) 
 
 ## Usage
 
-### [ledger-cli](https://ledger-cli.org/) format
+### [ledger-cli](https://ledger-cli.org/)
 
-To use this program, declare a new environmental variable `LEDGER_TIME_FILE` pointing to a file that will store your project's different tasks.
+Start by [installing `ledger-cli`](https://ledger-cli.org/download.html), if not done already.
+
+To use this program, declare a new environmental variable `LEDGER_TIME_FILE` pointing to a file that will store your project's different tasks. 
 
 Each project can have multiple entries that reflect a project's task. Here's the example of an entry saved to the `LEDGER_TIME_FILE`:
 

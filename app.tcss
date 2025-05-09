@@ -15,7 +15,8 @@ Input {
     background: $secondary 0%;
     border: round $primary;
     max-width: 100%!important;
+
+    &.-valid { border: round $primary; }
+    &.-invalid { border: round $error; }
 }
 
-Input.-valid { border: round $primary; }
-Input.-invalid { border: round $error; }

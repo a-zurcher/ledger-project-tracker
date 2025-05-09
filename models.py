@@ -8,8 +8,13 @@ projects_root_account = "Projets"
 ledger_time_file = os.getenv("LEDGER_TIME_FILE")
 time_account = "Temps"
 
-class InvalidProjectEntry(Exception):
-    pass
+class InvalidProjectEntry(Exception): pass
+
+class LedgerTimeFileEnvNotSet(Exception):
+    def __init__(self):
+        # Call the base class constructor with the parameters it needs
+        message = "The $LEDGER_TIME_FILE environmental variable is not set ! Please declare it before using this app."
+        super().__init__(message)
 
 class ProjectEntry:
     name: str
@@ -18,9 +23,9 @@ class ProjectEntry:
     description: str
     duration: str
 
-    def __init__(self, client: str, project: str, date: datetime.date):
+    def __init__(self, client: str, name: str, date: datetime.date):
         self.client = client
-        self.name = project
+        self.name = name
         self.date = date
         self.description = ""
         self.duration = ""
@@ -34,14 +39,35 @@ class ProjectEntry:
     def set_duration(self, duration: str):
         self.duration = duration
 
-    def to_ledger(self):
-        today = datetime.today().strftime(DATE_FORMAT)
+    def get_ledger_project_name(self) -> str:
         date_str = self.date.strftime(DATE_FORMAT)
+        return f"{projects_root_account}:{self.client}:{date_str} {self.name}"
+
+    def to_ledger_entry(self):
+        today = datetime.today().strftime(DATE_FORMAT)
+        ledger_project = self.get_ledger_project_name()
+
         return (
             f"{today} {self.description}\n"
-            f"    {projects_root_account}:{self.client}:{date_str} {self.name}\t\t{self.duration}\n"
+            f"    {ledger_project}\t\t{self.duration}\n"
             f"    {time_account}\n"
         )
+
+    def get_time_spend(self) -> int:
+        """Returns the time spent on this project in seconds"""
+        ledger_format = "%(to_int(amount(scrub(display_amount))))\n"
+
+        result = subprocess.run(
+            args=f'ledger -f {ledger_time_file} balance --format "{ledger_format}" "{self.get_ledger_project_name()}"',
+            shell=True, capture_output=True, text=True
+        )
+
+        return int(result.stdout)
+
+def format_time(seconds: int) -> str:
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}"
 
 
 def parse_project(query: str) -> ProjectEntry:
@@ -54,6 +80,8 @@ def parse_project(query: str) -> ProjectEntry:
 
 
 def get_projects() -> list[ProjectEntry]:
+    if ledger_time_file is None: raise LedgerTimeFileEnvNotSet()
+
     result = subprocess.run(
         args=f"ledger -f {ledger_time_file} accounts {projects_root_account} --uncleared",
         shell=True, capture_output=True, text=True

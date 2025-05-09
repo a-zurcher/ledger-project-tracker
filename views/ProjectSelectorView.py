@@ -7,7 +7,7 @@ from textual.containers import Vertical
 from textual.screen import Screen
 from textual.widgets._data_table import RowKey, ColumnKey
 
-from models import get_projects, ProjectEntry
+from models import get_projects, ProjectEntry, format_time, ledger_time_file, LedgerTimeFileEnvNotSet
 from views.CreateProjectView import CreateProjectView
 from views.TimerView import TimerView
 
@@ -19,11 +19,14 @@ class SortedTableHeader:
 
 class ProjectSelectorView(Screen):
     CSS = """
-        #project-selector { width: 100%; }
-        #title { margin-bottom: 1; }
-        DataTable { max-width: 100%!important; margin-bottom: 1; } 
+        #project-selector {
+            width: 100;
+            #title { margin-bottom: 1; }
+            DataTable { max-width: 100%!important; margin-bottom: 1; } 
+        }
     """
 
+    errors = False
     table: DataTable
     create_new_project_button: Button = Button("Create new project", id="create_new_project")
 
@@ -33,13 +36,12 @@ class ProjectSelectorView(Screen):
     table_headers: list[SortedTableHeader] = [
         SortedTableHeader("Date"),
         SortedTableHeader("Client"),
-        SortedTableHeader("Project")
+        SortedTableHeader("Project"),
+        SortedTableHeader("Hours"),
     ]
 
     # stores all the projects in a dict as values with RowKey as keys
     table_rows: dict[RowKey, ProjectEntry] = {}
-
-
 
     def __init__(self):
         super().__init__(name='project_selector')
@@ -50,17 +52,29 @@ class ProjectSelectorView(Screen):
         self.table = table
 
     def compose(self) -> ComposeResult:
-        with Vertical(id="project-selector", classes="auto-size app-container"):
+        with Vertical(id="project-selector", classes="auto-size"):
             yield Label(Text("Project tracking", style="bold"), id="title")
             yield self.table
             yield self.create_new_project_button
 
     def on_mount(self):
-        projects = get_projects()
+        try:
+            projects = get_projects()
+            max_length_name = 56
+            max_length_client = 20
 
-        for p in projects:
-            row_key = self.table.add_row(p.date.strftime("%Y-%m-%d"), p.client, p.name)
-            self.table_rows[row_key] = p
+            for p in projects:
+                row_key = self.table.add_row(
+                    p.date.strftime("%Y-%m-%d"),
+                    p.client[:max_length_client] + (p.client[max_length_client:] and '…'),
+                    p.name[:max_length_name] + (p.name[max_length_name:] and '…'),
+                    format_time(p.get_time_spend())
+                )
+
+                self.table_rows[row_key] = p
+        except LedgerTimeFileEnvNotSet as e:
+            self.errors = True
+            self.notify(message=e.__str__(), title="Critical error !", severity="error", timeout=30)
 
         # sort by date, then company, then project name
         self.table.sort(*self.columns, reverse=True)

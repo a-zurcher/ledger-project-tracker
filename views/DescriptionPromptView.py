@@ -45,5 +45,5 @@ class DescriptionPromptView(Screen):
         if not ledger_time_file:
             self.app.exit("LEDGER_TIME_FILE not set")
         with open(ledger_time_file, "a") as f:
-            f.write("\n" + self.project.to_ledger())
+            f.write("\n" + self.project.to_ledger_entry())
         self.app.exit()
