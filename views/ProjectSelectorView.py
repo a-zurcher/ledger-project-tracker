@@ -7,7 +7,7 @@ from textual.containers import Vertical
 from textual.screen import Screen
 from textual.widgets._data_table import RowKey, ColumnKey
 
-from models import get_projects, ProjectEntry, format_time, ledger_time_file, LedgerTimeFileEnvNotSet
+from models import get_projects, ProjectEntry, format_time, LedgerTimeFileEnvNotSet
 from views.CreateProjectView import CreateProjectView
 from views.TimerView import TimerView
 

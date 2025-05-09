@@ -117,7 +117,7 @@ class TimerView(Screen):
             self.ask_description()
 
     def ask_description(self):
-        self.project.set_duration(f"{self.elapsed / 60:.2f}h")
+        self.project.set_duration(f"{self.elapsed / 3600:.2f}h")
         self.app.push_screen(DescriptionPromptView(self.project))
 
     def timer_display_update(self, timer_text: str):
