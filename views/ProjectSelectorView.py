@@ -63,6 +63,9 @@ class ProjectSelectorView(Screen):
             max_length_name = 56
             max_length_client = 20
 
+            # focus the "create new project" button if there are no projects in the ledger file
+            if len(projects) == 0: self.create_new_project_button.focus()
+
             for p in projects:
                 row_key = self.table.add_row(
                     p.date.strftime("%Y-%m-%d"),
