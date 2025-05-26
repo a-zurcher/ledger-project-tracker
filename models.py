@@ -54,7 +54,7 @@ class ProjectEntry:
         )
 
     def get_time_spend(self) -> int:
-        """Returns the time spent on this project in seconds"""
+        """Returns the time spent on this project in seconds, or 0 if the project doesn't exist in the ledger file."""
         ledger_format = "%(to_int(amount(scrub(display_amount))))\n"
 
         result = subprocess.run(
@@ -62,7 +62,10 @@ class ProjectEntry:
             shell=True, capture_output=True, text=True
         )
 
-        return int(result.stdout)
+        try:
+            return int(result.stdout)
+        except ValueError:
+            return 0
 
 def format_time(seconds: int) -> str:
     hours, remainder = divmod(seconds, 3600)
@@ -81,6 +84,11 @@ def parse_project(query: str) -> ProjectEntry:
 
 def get_projects() -> list[ProjectEntry]:
     if ledger_time_file is None: raise LedgerTimeFileEnvNotSet()
+
+    # create the file if it doesn't exist yet
+    if not os.path.isfile(ledger_time_file):
+        with open(ledger_time_file, "w") as f:
+            f.write("")
 
     result = subprocess.run(
         args=f"ledger -f {ledger_time_file} accounts {projects_root_account} --uncleared",
