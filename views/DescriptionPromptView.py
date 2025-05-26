@@ -1,5 +1,3 @@
-import os
-
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.screen import Screen
@@ -27,7 +25,7 @@ class DescriptionPromptView(Screen):
         self.input.action_submit = self.action_save_project
 
         self.save_button = Button("Save", id="save_btn")
-        self.save_button.action_submit = self.action_save_project
+        self.save_button.action_press = self.action_save_project
 
 
     def compose(self) -> ComposeResult:
@@ -39,6 +37,10 @@ class DescriptionPromptView(Screen):
     def on_mount(self):
         self.input.focus()
 
+    def on_button_pressed(self, event: Button.Pressed):
+        if event.button.id == "save_btn":
+            self.action_save_project()
+
     def action_save_project(self):
         self.project.set_description(self.input.value)
 
@@ -46,4 +48,5 @@ class DescriptionPromptView(Screen):
             self.app.exit("LEDGER_TIME_FILE not set")
         with open(ledger_time_file, "a") as f:
             f.write("\n" + self.project.to_ledger_entry())
-        self.app.exit()
+
+        self.app.push_screen("project-selector")

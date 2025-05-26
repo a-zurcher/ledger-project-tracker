@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.widgets import DataTable, Button, Label
-from textual.containers import Vertical
+from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.widgets._data_table import RowKey, ColumnKey
 
@@ -22,14 +22,15 @@ class ProjectSelectorView(Screen):
         #project-selector {
             width: 100;
             #title { margin-bottom: 1; }
-            DataTable { max-width: 100%!important; margin-bottom: 1; } 
+            DataTable { max-width: 100%!important; margin-bottom: 1; }
+            #create_new_project { margin-right: 1; }
         }
     """
 
-    errors = False
+    errors: bool
     table: DataTable
-    create_new_project_button: Button = Button("Create new project", id="create_new_project")
-
+    create_new_project_button: Button
+    exit_button: Button
     columns: list[ColumnKey]
 
     # used to manage sorting
@@ -48,14 +49,20 @@ class ProjectSelectorView(Screen):
 
         table = DataTable(zebra_stripes=True)
         table.cursor_type = "row"
-        self.columns = table.add_columns(*[x.label for x in self.table_headers])
+
+        self.errors = False
+        self.create_new_project_button = Button("Create new project", id="create_new_project", variant="primary")
+        self.exit_button = Button("Exit", id="exit_btn", variant="error")
         self.table = table
+        self.columns = table.add_columns(*[x.label for x in self.table_headers])
 
     def compose(self) -> ComposeResult:
         with Vertical(id="project-selector", classes="auto-size"):
             yield Label(Text("Project tracking", style="bold"), id="title")
             yield self.table
-            yield self.create_new_project_button
+            with Horizontal(classes="form-group"):
+                yield self.create_new_project_button
+                yield self.exit_button
 
     def on_mount(self):
         try:
@@ -94,5 +101,8 @@ class ProjectSelectorView(Screen):
         project = self.table_rows.get(event.row_key)
         self.app.push_screen(TimerView(project))
 
-    def on_button_pressed(self):
-        self.app.push_screen(CreateProjectView())
+    def on_button_pressed(self, event: Button.Pressed):
+        if event.button.id == "exit_btn":
+            self.app.exit()
+        elif event.button.id == "create_new_project":
+            self.app.push_screen(CreateProjectView())

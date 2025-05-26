@@ -39,8 +39,9 @@ class CreateProjectView(Screen):
             
             Label { height: auto; }
             Input { width: 52; }
-            #submit_btn { margin-right: 1; }
         }
+        
+        #submit_btn { margin-right: 1; }
     """
 
     date_input: Input
