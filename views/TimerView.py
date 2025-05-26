@@ -96,9 +96,16 @@ class TimerView(Screen):
         if self.running:
             # add one second to the elapsed total
             self.elapsed += 1
+
+
             m, s = divmod(self.elapsed, 60)
             h, m = divmod(m, 60)
-            self.timer_display_update(f"{int(h):02d}:{int(m):02d}")
+
+            # blink the ":" every second
+            time = f"{int(h):02d}:{int(m):02d}"
+            if s % 2 == 1: time = f"{int(h):02d} {int(m):02d}"
+
+            self.timer_display_update(time)
 
     def toggle_timer_set_text(self, **kwargs):
         self.toggle_timer_button.label = "Resume" if not self.running else "Pause"
