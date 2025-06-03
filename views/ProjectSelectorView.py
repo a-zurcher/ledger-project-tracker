@@ -67,7 +67,7 @@ class ProjectSelectorView(Screen):
     def on_mount(self):
         try:
             projects = get_projects()
-            max_length_name = 56
+            max_length_name = 55
             max_length_client = 20
 
             # focus the "create new project" button if there are no projects in the ledger file
